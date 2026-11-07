@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Registrar visita al taller</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-body-tertiary">
+
+<nav th:replace="~{fragments/header :: header('vehiculos')}"></nav>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-7">
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a th:href="@{/vehiculos}">Mis vehículos</a></li>
+                    <li class="breadcrumb-item">
+                        <a th:href="@{/vehiculos/{id}(id=${vehiculo.id})}" th:text="${vehiculo.matricula}"></a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">Registrar visita</li>
+                </ol>
+            </nav>
+
+            <h1 class="h3 fw-bold mb-1">Registrar visita al taller</h1>
+            <p class="text-secondary mb-4">
+                <span th:text="${vehiculo.marca} + ' ' + ${vehiculo.modelo} + ' (' + ${vehiculo.matricula} + ')'"></span>
+                · Los campos marcados con * son obligatorios.
+            </p>
+
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+
+                    <form th:action="@{/vehiculos/{id}/intervenciones(id=${vehiculo.id})}"
+                          th:object="${intervencionForm}" method="post" enctype="multipart/form-data" novalidate>
+
+                        <!-- Errores generales, por ejemplo de los archivos adjuntos -->
+                        <div class="alert alert-danger" role="alert" th:if="${#fields.hasGlobalErrors()}">
+                            <div th:each="err : ${#fields.globalErrors()}" th:text="${err}"></div>
+                        </div>
+
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label for="tipo" class="form-label">Tipo de mantenimiento *</label>
+                                <select class="form-select" id="tipo" th:field="*{tipo}"
+                                        th:classappend="${#fields.hasErrors('tipo')} ? 'is-invalid'">
+                                    <option value="">Selecciona un tipo</option>
+                                    <option th:each="t : ${tipos}" th:value="${t}"
+                                            th:text="${#strings.capitalize(#strings.toLowerCase(#strings.replace(t, '_', ' ')))}"></option>
+                                </select>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('tipo')}"
+                                     th:errors="*{tipo}"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="fecha" class="form-label">Fecha *</label>
+                                <input type="date" class="form-control" id="fecha" th:field="*{fecha}"
+                                       th:max="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}"
+                                       th:classappend="${#fields.hasErrors('fecha')} ? 'is-invalid'">
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('fecha')}"
+                                     th:errors="*{fecha}"></div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="tallerId" class="form-label">Taller</label>
+                                <select class="form-select" id="tallerId" th:field="*{tallerId}">
+                                    <!-- Sin elegir taller se usa el de confianza (variable de sesión) -->
+                                    <option value=""
+                                            th:text="${session.tallerConfianzaNombre != null} ? 'Mi taller de confianza (' + ${session.tallerConfianzaNombre} + ')' : 'Mi taller de confianza'">
+                                        Mi taller de confianza
+                                    </option>
+                                    <option th:each="t : ${talleres}" th:value="${t.id}"
+                                            th:text="${t.confianza} ? ${t.nombre} + ' ★' : ${t.nombre}"></option>
+                                </select>
+                                <div class="form-text">
+                                    Si no eliges ninguno, la visita se asigna a tu taller de confianza.
+                                    <a th:href="@{/talleres/nuevo}">Añadir otro taller</a>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="kilometraje" class="form-label">Kilometraje en la visita</label>
+                                <div class="input-group has-validation">
+                                    <input type="number" min="0" class="form-control" id="kilometraje"
+                                           th:field="*{kilometraje}"
+                                           th:classappend="${#fields.hasErrors('kilometraje')} ? 'is-invalid'"
+                                           placeholder="85000">
+                                    <span class="input-group-text">km</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('kilometraje')}"
+                                         th:errors="*{kilometraje}"></div>
+                                </div>
+                                <div class="form-text" th:if="${vehiculo.kilometrajeActual != null}"
+                                     th:text="'Ahora mismo: ' + ${#numbers.formatInteger(vehiculo.kilometrajeActual, 1, 'POINT')} + ' km'"></div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="coste" class="form-label">Coste</label>
+                                <div class="input-group has-validation">
+                                    <input type="number" min="0" step="0.01" class="form-control" id="coste"
+                                           th:field="*{coste}"
+                                           th:classappend="${#fields.hasErrors('coste')} ? 'is-invalid'"
+                                           placeholder="120.50">
+                                    <span class="input-group-text">€</span>
+                                    <div class="invalid-feedback" th:if="${#fields.hasErrors('coste')}"
+                                         th:errors="*{coste}"></div>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="descripcion" class="form-label">Descripción</label>
+                                <textarea class="form-control" id="descripcion" rows="4" maxlength="1000"
+                                          th:field="*{descripcion}"
+                                          th:classappend="${#fields.hasErrors('descripcion')} ? 'is-invalid'"
+                                          placeholder="Qué se ha hecho: aceite 5W30, filtro de aceite, filtro de aire..."></textarea>
+                                <div class="invalid-feedback" th:if="${#fields.hasErrors('descripcion')}"
+                                     th:errors="*{descripcion}"></div>
+                            </div>
+
+                            <div class="col-12">
+                                <label for="archivos" class="form-label">Factura o justificante (PDF o fotos)</label>
+                                <input type="file" class="form-control" id="archivos" name="archivos" multiple
+                                       accept="application/pdf,image/jpeg,image/png,image/webp"
+                                       data-max-mb="5" data-max-archivos="5">
+                                <div class="form-text">
+                                    Opcional. PDF, JPG, PNG o WebP, hasta 5 MB por archivo y 5 archivos por visita.
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">Guardar visita</button>
+                            <a class="btn btn-outline-secondary"
+                               th:href="@{/vehiculos/{id}(id=${vehiculo.id})}">Cancelar</a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

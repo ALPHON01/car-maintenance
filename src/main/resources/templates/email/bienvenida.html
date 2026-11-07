@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Te damos la bienvenida a Historial del coche</title>
+</head>
+<!--/*
+    Correo de bienvenida. Lo procesa EmailService (no es una página de la web).
+    Variables: nombre, urlLogin.
+    Los estilos van en línea (style="...") porque la mayoría de clientes de correo ignoran las hojas de estilo.
+*/-->
+<body style="margin:0;padding:0;background-color:#fff8e7;font-family:Arial,Helvetica,sans-serif;color:#4a3728;">
+
+<!--/* Texto de vista previa que algunos clientes muestran junto al asunto */-->
+<div style="display:none;max-height:0;overflow:hidden;opacity:0;">
+    Tu cuenta ya está lista. Estos son los primeros pasos.
+</div>
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color:#fff8e7;padding:24px 12px;">
+    <tr>
+        <td align="center">
+            <table role="presentation" width="100%" cellpadding="0" cellspacing="0"
+                   style="max-width:560px;background-color:#ffffff;border-radius:16px;overflow:hidden;">
+
+                <tr>
+                    <td style="background-color:#5b4636;padding:18px 28px;color:#ffffff;font-size:18px;font-weight:bold;">
+                        Historial del coche
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="background-color:#ffe9a8;padding:28px;">
+                        <h1 style="margin:0 0 8px 0;font-size:24px;line-height:1.3;color:#5b4636;"
+                            th:text="'¡Te damos la bienvenida, ' + ${nombre} + '!'">¡Te damos la bienvenida!</h1>
+                        <p style="margin:0;font-size:16px;line-height:1.5;color:#4a3728;">
+                            Tu cuenta ya está lista.
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:28px;font-size:15px;line-height:1.6;">
+                        <p style="margin:0 0 12px 0;">Con ella puedes:</p>
+                        <ul style="margin:0 0 24px 0;padding-left:20px;">
+                            <li style="margin-bottom:8px;">Añadir tus vehículos con su matrícula y kilometraje.</li>
+                            <li style="margin-bottom:8px;">Anotar cada visita al taller y guardar su factura en PDF o foto.</li>
+                            <li>Ver qué mantenimiento te toca después: aceite, frenos, ITV, correa...</li>
+                        </ul>
+
+                        <p style="margin:0 0 24px 0;text-align:center;">
+                            <a th:href="${urlLogin}" href="#"
+                               style="display:inline-block;background-color:#8b5e3c;color:#ffffff;text-decoration:none;font-weight:bold;padding:12px 32px;border-radius:999px;">
+                                Iniciar sesión
+                            </a>
+                        </p>
+
+                        <p style="margin:0;font-size:13px;color:#7a6350;">
+                            Si el botón no funciona, copia esta dirección en tu navegador:<br>
+                            <span th:text="${urlLogin}">http://localhost:8080/login</span>
+                        </p>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="padding:0 28px 28px 28px;font-size:12px;line-height:1.5;color:#7a6350;">
+                        Si no has creado esta cuenta, puedes ignorar este mensaje.
+                    </td>
+                </tr>
+
+            </table>
+        </td>
+    </tr>
+</table>
+
+</body>
+</html>

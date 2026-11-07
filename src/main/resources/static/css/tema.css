@@ -1,0 +1,189 @@
+/* ==========================================================================
+   Tema pastel: amarillos suaves y marrones claros
+   Se carga desde fragments/header.html, así que afecta a todas las páginas
+   y se aplica después de Bootstrap (por eso puede sobrescribirlo).
+   ========================================================================== */
+
+:root {
+    /* Paleta propia */
+    --cafe-crema: #fff8e7;
+    --cafe-amarillo: #ffe9a8;
+    --cafe-amarillo-suave: #fff3cc;
+    --cafe-arena: #f1e0c9;
+    --cafe-tostado: #e0c4a0;
+    --cafe-marron: #8b5e3c;
+    --cafe-marron-hover: #6f4a2e;
+    --cafe-marron-oscuro: #5b4636;
+    --cafe-texto: #4a3728;
+    --cafe-texto-suave: #7a6350;
+
+    /* Variables de Bootstrap redefinidas con la paleta */
+    --bs-body-color: #4a3728;
+    --bs-body-color-rgb: 74, 55, 40;
+    --bs-body-bg: #fff8e7;
+    --bs-body-bg-rgb: 255, 248, 231;
+    --bs-tertiary-bg: #fff8e7;
+    --bs-tertiary-bg-rgb: 255, 248, 231;
+    --bs-secondary-bg: #f1e0c9;
+    --bs-secondary-bg-rgb: 241, 224, 201;
+    --bs-secondary-color: #7a6350;
+    --bs-secondary-rgb: 122, 99, 80;
+    --bs-primary: #8b5e3c;
+    --bs-primary-rgb: 139, 94, 60;
+    --bs-primary-bg-subtle: #ffe9a8;
+    --bs-link-color: #8b5e3c;
+    --bs-link-color-rgb: 139, 94, 60;
+    --bs-link-hover-color: #6f4a2e;
+    --bs-link-hover-color-rgb: 111, 74, 46;
+    --bs-border-color: #ead9c0;
+    --bs-border-color-translucent: rgba(91, 70, 54, .15);
+}
+
+.text-suave { color: var(--cafe-texto-suave); }
+
+/* ---------- Barra de navegación ---------- */
+.navbar.bg-dark { background-color: var(--cafe-marron-oscuro) !important; }
+
+/* ---------- Botones ---------- */
+/* Los botones "primary" de todas las páginas pasan a marrón */
+.btn-primary,
+.btn-cafe {
+    --bs-btn-color: #fff;
+    --bs-btn-bg: var(--cafe-marron);
+    --bs-btn-border-color: var(--cafe-marron);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cafe-marron-hover);
+    --bs-btn-hover-border-color: var(--cafe-marron-hover);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #5f3f27;
+    --bs-btn-active-border-color: #5f3f27;
+    --bs-btn-disabled-bg: var(--cafe-marron);
+    --bs-btn-disabled-border-color: var(--cafe-marron);
+    --bs-btn-focus-shadow-rgb: 139, 94, 60;
+}
+
+.btn-outline-primary,
+.btn-cafe-borde {
+    --bs-btn-color: var(--cafe-marron);
+    --bs-btn-border-color: var(--cafe-marron);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cafe-marron);
+    --bs-btn-hover-border-color: var(--cafe-marron);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: var(--cafe-marron-hover);
+    --bs-btn-active-border-color: var(--cafe-marron-hover);
+    --bs-btn-disabled-color: var(--cafe-marron);
+    --bs-btn-disabled-border-color: var(--cafe-marron);
+    --bs-btn-focus-shadow-rgb: 139, 94, 60;
+}
+
+/* Botones secundarios (Cancelar) en marrón grisáceo */
+.btn-outline-secondary {
+    --bs-btn-color: var(--cafe-texto-suave);
+    --bs-btn-border-color: var(--cafe-texto-suave);
+    --bs-btn-hover-color: #fff;
+    --bs-btn-hover-bg: var(--cafe-texto-suave);
+    --bs-btn-hover-border-color: var(--cafe-texto-suave);
+    --bs-btn-active-color: #fff;
+    --bs-btn-active-bg: #6a5443;
+    --bs-btn-active-border-color: #6a5443;
+    --bs-btn-focus-shadow-rgb: 122, 99, 80;
+}
+
+/* ---------- Formularios ---------- */
+.form-control:focus,
+.form-select:focus {
+    border-color: #c9a27a;
+    box-shadow: 0 0 0 .25rem rgba(139, 94, 60, .2);
+}
+
+/* ---------- Tarjetas y tablas ---------- */
+.card {
+    --bs-card-bg: #fffdf7;
+    --bs-card-border-color: #ecdcc4;
+    box-shadow: 0 .25rem .75rem rgba(91, 70, 54, .08) !important;
+}
+
+.table { --bs-table-bg: transparent; }
+
+.table-light {
+    --bs-table-bg: var(--cafe-arena);
+    --bs-table-color: var(--cafe-texto);
+    --bs-table-border-color: var(--cafe-tostado);
+}
+
+/* ==========================================================================
+   Componentes de la portada
+   ========================================================================== */
+.hero-panel {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, var(--cafe-amarillo) 0%, var(--cafe-amarillo-suave) 100%);
+    border-radius: 2rem;
+}
+.hero-panel::before,
+.hero-panel::after {
+    content: "";
+    position: absolute;
+    border-radius: 50%;
+    z-index: 0;
+}
+.hero-panel::before {
+    width: 16rem; height: 16rem;
+    background: var(--cafe-tostado);
+    opacity: .55;
+    top: -5rem; right: -4rem;
+}
+.hero-panel::after {
+    width: 9rem; height: 9rem;
+    background: var(--cafe-arena);
+    opacity: .9;
+    bottom: -3rem; left: -2rem;
+}
+.hero-panel > * { position: relative; z-index: 1; }
+
+.tarjeta-pastel {
+    border: 0;
+    border-radius: 1.5rem;
+    transition: transform .2s ease, box-shadow .2s ease;
+}
+.tarjeta-pastel:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 .85rem 1.6rem rgba(91, 70, 54, .16) !important;
+}
+.fondo-amarillo { background-color: var(--cafe-amarillo); }
+.fondo-arena    { background-color: var(--cafe-arena); }
+.fondo-tostado  { background-color: var(--cafe-tostado); }
+
+.paso-numero {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    background-color: var(--cafe-marron);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.banda-final {
+    background: linear-gradient(135deg, var(--cafe-tostado) 0%, var(--cafe-arena) 100%);
+    border: 0;
+    border-radius: 2rem;
+}
+
+/* ---------- Inicial del usuario en el header ---------- */
+.avatar-inicial {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background-color: var(--cafe-amarillo);
+    color: var(--cafe-marron-oscuro);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: .95rem;
+}

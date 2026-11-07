@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!--/*
+    Uso desde cualquier página:
+
+        <nav th:replace="~{fragments/header :: header('vehiculos')}"></nav>
+
+    Valores de 'activo' (pestaña en blanco):
+    'inicio' | 'vehiculos' | 'nuevo' | 'talleres' | 'login' | 'registro'
+
+    El usuario se obtiene de ${usuarioActual} (lo añade GlobalModelAttributes) y,
+    si no estuviera, directamente de la sesión de Spring Security.
+    También carga /css/tema.css y retira solos los avisos, así que las páginas no tienen que hacerlo.
+*/-->
+<nav th:fragment="header(activo)" th:with="usuario=${usuarioActual != null ? usuarioActual : session.SPRING_SECURITY_CONTEXT?.authentication?.principal}"
+     class="navbar navbar-expand-md navbar-dark bg-dark">
+    <!--/* Tema de colores de toda la aplicación (se aplica después de Bootstrap) */-->
+    <link th:href="@{/css/tema.css}" rel="stylesheet">
+    <!--/*
+        Retira solos los avisos de éxito (verdes) e información (azules): esperan 2 s y se
+        desvanecen despacio y el resto de la página sube suavemente a ocupar el hueco.
+        Los errores (rojos) se quedan hasta que el usuario los cierre.
+        Un aviso con data-fijo nunca se retira; uno con data-autocerrar siempre se retira.
+        Va dentro del propio fragmento para que funcione en todas las páginas sin más archivos.
+    */-->
+    <script th:inline="none">
+        (function () {
+            var ESPERA_MS = 2000;    // tiempo que el aviso permanece visible
+            var FUNDIDO_MS = 1500;   // duración del desvanecimiento
+            var PLEGADO_MS = 800;    // duración con la que el resto de la página sube a ocupar el hueco
+
+            var reducirMovimiento = window.matchMedia &&
+                window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+            // Lo que se pliega: el propio aviso o, si es lo único que hay en su caja, esa caja
+            // (así tampoco queda el margen de la caja vacía).
+            function elementoAPlegar(aviso) {
+                var padre = aviso.parentElement;
+                var cajaSoloDelAviso = padre && padre.children.length === 1 &&
+                    padre.tagName !== 'MAIN' && padre.tagName !== 'BODY';
+                return cajaSoloDelAviso ? padre : aviso;
+            }
+
+            // Reduce la altura (y los márgenes) hasta 0 con una transición suave
+            function plegar(elemento, duracion, alTerminar) {
+                elemento.style.overflow = 'hidden';
+                elemento.style.setProperty('height', elemento.getBoundingClientRect().height + 'px', 'important');
+                void elemento.offsetHeight;   // fija el punto de partida de la animación
+
+                var propiedades = ['height', 'padding-top', 'padding-bottom',
+                                   'margin-top', 'margin-bottom',
+                                   'border-top-width', 'border-bottom-width'];
+                elemento.style.transition = propiedades
+                    .map(function (p) { return p + ' ' + duracion + 'ms ease'; })
+                    .join(', ');
+                propiedades.forEach(function (p) {
+                    elemento.style.setProperty(p, '0px', 'important');
+                });
+
+                setTimeout(alTerminar, duracion);
+            }
+
+            function retirarLentamente(aviso) {
+                if (!aviso.isConnected) { return; }   // ya lo cerró el usuario
+
+                var fundido = reducirMovimiento ? 0 : FUNDIDO_MS;
+                var plegado = reducirMovimiento ? 0 : PLEGADO_MS;
+                var caja = elementoAPlegar(aviso);
+
+                // 1) Se desvanece
+                aviso.style.transition = 'opacity ' + fundido + 'ms ease';
+                aviso.style.opacity = '0';
+
+                // 2) Después se pliega y el resto de la página sube suavemente
+                setTimeout(function () {
+                    if (!aviso.isConnected) { return; }
+                    plegar(caja, plegado, function () {
+                        if (caja.isConnected) { caja.remove(); }
+                    });
+                }, fundido);
+            }
+
+            function programarAvisos() {
+                var avisos = document.querySelectorAll(
+                    '.alert-success:not([data-fijo]), .alert-info:not([data-fijo]), .alert[data-autocerrar]');
+                avisos.forEach(function (aviso) {
+                    setTimeout(function () { retirarLentamente(aviso); }, ESPERA_MS);
+                });
+            }
+
+            // Se espera a que la página esté cargada para encontrar los avisos
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', programarAvisos);
+            } else {
+                programarAvisos();
+            }
+        })();
+
+        /*
+         * Archivos adjuntos: comprueba tipo, tamaño y número al elegirlos, antes de enviar nada.
+         * Se aplica a cualquier <input type="file" data-max-mb="5" data-max-archivos="5">.
+         * (El servidor vuelve a comprobarlo todo: esto solo ahorra esperas y subidas inútiles.)
+         */
+        (function () {
+            var PERMITIDOS = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+
+            function mostrarAviso(input, mensaje) {
+                var aviso = input.parentElement.querySelector('.aviso-archivo');
+                if (!mensaje) {
+                    if (aviso) { aviso.remove(); }
+                    return;
+                }
+                if (!aviso) {
+                    aviso = document.createElement('div');
+                    aviso.className = 'aviso-archivo text-danger small mt-1';
+                    aviso.setAttribute('role', 'alert');
+                    input.insertAdjacentElement('afterend', aviso);
+                }
+                aviso.textContent = mensaje;
+            }
+
+            document.addEventListener('change', function (e) {
+                var input = e.target;
+                if (!input.matches || !input.matches('input[type=file][data-max-mb]')) { return; }
+
+                var maxMb = parseFloat(input.dataset.maxMb);
+                var maxArchivos = parseInt(input.dataset.maxArchivos || '5', 10);
+                var archivos = Array.prototype.slice.call(input.files);
+                var mensaje = '';
+
+                if (archivos.length > maxArchivos) {
+                    mensaje = 'Puedes elegir como máximo ' + maxArchivos + ' archivos.';
+                }
+                archivos.forEach(function (f) {
+                    if (mensaje) { return; }
+                    if (f.type && PERMITIDOS.indexOf(f.type) === -1) {
+                        mensaje = '«' + f.name + '» no es un PDF ni una imagen JPG, PNG o WebP.';
+                    } else if (f.size > maxMb * 1024 * 1024) {
+                        mensaje = '«' + f.name + '» supera el máximo de ' + maxMb + ' MB.';
+                    }
+                });
+
+                if (mensaje) { input.value = ''; }   // se descarta la selección para no enviar nada inválido
+                mostrarAviso(input, mensaje);
+            });
+        })();
+    </script>
+    <div class="container">
+        <a class="navbar-brand fw-semibold" th:href="@{/}">Historial del coche</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#menuPrincipal" aria-controls="menuPrincipal"
+                aria-expanded="false" aria-label="Abrir menú">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="menuPrincipal">
+
+            <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/}"
+                       th:classappend="${activo == 'inicio'} ? 'active'"
+                       th:attr="aria-current=${activo == 'inicio'} ? 'page'">Inicio</a>
+                </li>
+                <th:block th:if="${usuario != null}">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/vehiculos}"
+                           th:classappend="${activo == 'vehiculos'} ? 'active'"
+                           th:attr="aria-current=${activo == 'vehiculos'} ? 'page'">Mis vehículos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/vehiculos/nuevo}"
+                           th:classappend="${activo == 'nuevo'} ? 'active'"
+                           th:attr="aria-current=${activo == 'nuevo'} ? 'page'">Añadir vehículo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/talleres}"
+                           th:classappend="${activo == 'talleres'} ? 'active'"
+                           th:attr="aria-current=${activo == 'talleres'} ? 'page'">Talleres</a>
+                    </li>
+                </th:block>
+            </ul>
+
+            <ul class="navbar-nav ms-md-auto mb-2 mb-md-0 align-items-md-center gap-md-3">
+                <!--/* Con sesión iniciada */-->
+                <th:block th:if="${usuario != null}">
+                    <li class="nav-item d-flex align-items-center gap-2 text-white">
+                        <span class="avatar-inicial"
+                              th:text="${#strings.toUpperCase(#strings.substring(usuario.nombre, 0, 1))}"></span>
+                        <span class="fw-semibold" th:text="${usuario.nombre}"
+                              th:title="${session.inicioSesion != null} ? 'Sesión iniciada el ' + ${#temporals.format(session.inicioSesion, 'dd/MM/yyyy HH:mm')} : null"></span>
+                    </li>
+                    <li class="nav-item">
+                        <!--/* El logout debe ser POST (lleva el token CSRF que añade th:action) */-->
+                        <form th:action="@{/logout}" method="post" class="mb-0">
+                            <button type="submit" class="btn btn-outline-light btn-sm">Cerrar sesión</button>
+                        </form>
+                    </li>
+                </th:block>
+                <!--/* Sin sesión */-->
+                <th:block th:if="${usuario == null}">
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/login}"
+                           th:classappend="${activo == 'login'} ? 'active'"
+                           th:attr="aria-current=${activo == 'login'} ? 'page'">Iniciar sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" th:href="@{/registro}"
+                           th:classappend="${activo == 'registro'} ? 'active'"
+                           th:attr="aria-current=${activo == 'registro'} ? 'page'">Registrarse</a>
+                    </li>
+                </th:block>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+
+</body>
+</html>
