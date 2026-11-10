@@ -10,7 +10,7 @@
 ![MySQL](https://img.shields.io/badge/MySQL-Aiven-4479A1?logo=mysql&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Render-2496ED?logo=docker&logoColor=white)
 
-[**🌐 Ver la aplicación en producción**](https://TU-APP.onrender.com) · [Casos de uso](#-casos-de-uso) · [Modelo de datos](#-modelo-de-datos) · [Arquitectura](#-arquitectura-y-despliegue)
+[**🌐 Ver la aplicación en producción**](https://car-maintenance-ld1o.onrender.com/) · [Casos de uso](#-casos-de-uso) · [Modelo de datos](#-modelo-de-datos) · [Arquitectura](#-arquitectura-y-despliegue)
 
 <img src="docs/img/capturas/01-inicio.png" alt="Página de inicio" width="85%">
 
@@ -135,26 +135,6 @@ Decisiones de diseño:
 ---
 
 ## 🚀 Ejecutarlo en local
-
-**Requisitos:** Java 21, Maven y MySQL.
-
-```bash
-# 1. Clonar
-git clone https://github.com/TU_USUARIO/TU_REPO.git
-cd TU_REPO
-
-# 2. Crear la base de datos
-mysql -u root -p -e "CREATE DATABASE car_maintenance CHARACTER SET utf8mb4;"
-
-# 3. Configurar credenciales
-cp application-local.properties.example src/main/resources/application-local.properties
-#    (edita el fichero con tu usuario y contraseña de MySQL y, si quieres, tu correo SMTP)
-
-# 4. Arrancar
-mvn spring-boot:run
-```
-
-Abre http://localhost:8080 y crea una cuenta.
 
 > `application-local.properties` está en el `.gitignore`: tus credenciales no se suben al repositorio.
 
